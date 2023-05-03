@@ -4,6 +4,8 @@ from scene import Scene
 
 scene = Scene(dt=1e-6)
 
+scene.init()
+
 gui = GUI(scene)
 
 gui.start()

@@ -16,11 +16,19 @@ dt = 1e-6
 @ti.func
 def rot(q, X)->vec2:
     """Rotate point X by rotation q"""
-    """Code from https://github.coecis.cornell.edu/cs5643/assignments"""
     return vec2(q.x * X.x - q.y * X.y, q.y * X.x + q.x * X.y)
 
 @ti.func
 def roti(q, X)->vec2:
     """Rotate point X by the inverse of rotation q"""
-    """Code from https://github.coecis.cornell.edu/cs5643/assignments"""
     return vec2(q.x * X.x + q.y * X.y, -q.y * X.x + q.x * X.y)
+
+@ti.func 
+def to_local(o, q, X)->vec2:
+    """Get the local coordinates of a point in world coordinates"""
+    return roti(q, X - o)
+
+@ti.func 
+def to_world(o, q, X)->vec2:
+    """Get the world coordinates of a point in local coordinates"""
+    return rot(q, X) + o

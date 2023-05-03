@@ -17,20 +17,16 @@ class Object:
     
     def __init__(self, o, R=vec2(1,0), v=vec2(0,0), ω=0, m=1, I=None, size=None):
         pass
-        
-    @ti.func 
-    def to_local(self, x):
-        """Get the local coordinates of a point in world coordinates"""
-        pass
-    
-    @ti.func 
-    def to_world(self, x):
-        """Get the world coordinates of a point in local coordinates"""
-        pass
     
     @ti.func 
     def sdf(self, x):
         """Get the signed distance from a point to the object"""
+        pass
+    
+    @ti.func
+    def particles(self):
+        """ Render the object as a set of particles in local coordinates.
+            For rigid bodies, this function should only be called once"""
         pass
     
     @ti.func 
@@ -68,17 +64,19 @@ class Sphere:
         else:
             self.size = size
     
-    @ti.func 
-    def to_local(self, x):
-        return roti(self.R, x - self.o)
-    
-    @ti.func 
-    def to_world(self, x):
-        return rot(self.R, x) + self.o
-    
     @ti.func
     def sdf(self, x):
-        return (x - self.o).norm()
+        return (x - self.o).norm() - self.r
+    
+    @ti.func
+    def particles(self, idx, sphere_pt):
+        for i,j in ti.ndrange(20, 20):
+            x = vec2((i-10)/10, (j-10)/10) * self.size
+            x = to_world(self.o, self.R, x)
+            if self.sdf(x) < 0:
+                print(x)
+                sphere_pt[idx] = x
+                idx += 1
     
     @ti.func
     def update(self):
