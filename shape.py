@@ -74,7 +74,7 @@ class Sphere:
             x = vec2((i-10)/10, (j-10)/10) * self.size
             x = to_world(self.o, self.R, x)
             if self.sdf(x) < 0:
-                print(x)
+                # print(x)
                 sphere_pt[idx] = x
                 idx += 1
     
@@ -83,4 +83,3 @@ class Sphere:
         self.o += self.v * dt
         self.R += self.ω * dt
         self.R = self.R.normalized()
-

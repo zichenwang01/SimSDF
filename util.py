@@ -11,7 +11,7 @@ vec3 = tm.vec3
 num_step = 100
 
 # time step for each substep
-dt = 1e-6
+dt = 1e-4
 
 @ti.func
 def rot(q, X)->vec2:
