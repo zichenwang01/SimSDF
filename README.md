@@ -1,1 +1,1 @@
-# CS5643-SimSDF
+# SimSDF: Physically-Based Simulation with Signed Distance Field
