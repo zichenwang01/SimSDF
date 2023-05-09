@@ -8,7 +8,7 @@ import pyrender
 import matplotlib.pyplot as plt
 import mesh_to_sdf
 
-mesh = trimesh.load('objects/woody-full.obj')
+mesh = trimesh.load('data/woody-full.obj')
 
 mesh = scale_to_unit_cube(mesh)
 
@@ -36,6 +36,8 @@ voxel = mesh_to_sdf.mesh_to_sdf(mesh, query_points, surface_point_method='scan',
 
 # reshape to image
 voxel = voxel.reshape(res, res)
+
+print(voxel)
 
 # visualize but flip y axis since image origin is in the top left corner
 plt.imshow(np.flip(voxel, axis=0))

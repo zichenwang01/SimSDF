@@ -17,5 +17,6 @@ class GUI:
         return self.window.running
     
     def draw(self, scene):
-        self.canvas.circles(scene.particles, radius=1.0/self.width, color=(0.5,0.5,0.5))
+        # print(scene.positions)
+        self.canvas.circles(scene.positions, radius=1.0/self.width, color=(0.5,0.5,0.5))
         # self.canvas.circles(self.grid, radius=1.0/self.width, color=self.color)

@@ -38,45 +38,41 @@ class Object:
 class Sphere:
     o : vec2  # origin (center of mass)
     r : float # radius
-    R : vec2  # rotation (cosine/sine pair)
+    m : float # mass
     v : vec2  # linear velocity
     ω : float # angular velocity
-    # l : vec2  # dimensions of box
-    m : float # mass
+    R : vec2  # rotation (cosine/sine pair)
     I : float # moment of inertia
     size: float # collision detection radius
     
-    def init(self, o, r, R=vec2(1,0), v=vec2(0,0), ω=0, m=1, I=None, size=None):
+    @ti.func
+    def init(self, o, r, m=1, v=vec2(0,0), ω=0):
         self.o = o
         self.r = r
-        self.R = R
+        self.m = m
         self.v = v
         self.ω = ω
-        self.m = m
-        
-        if I is None:
-            self.I = 0.25 * m * r * r
-        else:
-            self.I = I
-        
-        if size is None:
-            self.size = r
-        else:
-            self.size = size
+        self.R = vec2(1,0)
+        self.I = 0.25 * m * r * r
+        self.size = r
     
     @ti.func
     def sdf(self, x):
         return (x - self.o).norm() - self.r
     
     @ti.func
-    def particles(self, idx, sphere_pt):
+    def particles(self, idx, num_pt, particles):
         for i,j in ti.ndrange(20, 20):
-            x = vec2((i-10)/10, (j-10)/10) * self.size
-            x = to_world(self.o, self.R, x)
-            if self.sdf(x) < 0:
-                # print(x)
-                sphere_pt[idx] = x
-                idx += 1
+            
+            local = vec2(float((i-10.0)/10.0), (j-10.0)/10.0) * self.size
+            # print(local)
+            world = to_world(self.o, self.R, local)
+            
+            if self.sdf(world) < 0:
+                # print(local)
+                particles[num_pt[None]].p = local
+                particles[num_pt[None]].idx = idx[None]
+                ti.atomic_add(num_pt[None], 1)
     
     @ti.func
     def update(self):
