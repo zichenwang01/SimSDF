@@ -29,7 +29,7 @@ xy = np.stack([x, y], axis=1)
 sdf = sdf_max(xy)
 
 fig, ax = plt.subplots()
-plt.title('Max SDF')
+plt.title('Gradient Descent to the Contact Region')
 plt.xlabel('x')
 plt.ylabel('y')
 plt.xlim(0, 1)
