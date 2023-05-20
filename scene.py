@@ -1,7 +1,6 @@
 from util import * 
 from shape import Sphere 
 
-
 @ti.data_oriented
 class Scene:
    
@@ -16,12 +15,15 @@ class Scene:
         self.vertices = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
         self.triangles = ti.field(dtype=ti.i32, shape=(3*10000))
 
+        # colliding points
+        self.num_collide = ti.field(dtype=ti.i32, shape=())
+        self.collide = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
     
     @ti.kernel
-    def add_sphere(self, o:vec2, r:float, m:float):
+    def add_sphere(self, o:vec2, r:float, m:float, v:vec2):
         """Initialize a sphere"""
         num_sphere = self.num_sphere[None]
-        self.spheres[num_sphere].init(o=o, r=r, m=m)
+        self.spheres[num_sphere].init(o=o, r=r, m=m, v=v)
         self.spheres[num_sphere].triangles(self.num_v, 
                                            self.num_tri, 
                                            self.triangles)
@@ -29,7 +31,31 @@ class Scene:
 
     @ti.func
     def sdf(self, x):
-        return self.spheres[0].sdf(x)
+        dist = tm.inf
+        for i in range(self.num_sphere[None]):
+            dist = min(dist, self.spheres[i].sdf(x))
+        return dist
+
+    @ti.func
+    def sdf_grad(self, x):
+        dx = (self.sdf(x + vec2(1e-4, 0)) - self.sdf(x - vec2(1e-4, 0))) / 2e-4
+        dy = (self.sdf(x + vec2(0, 1e-4)) - self.sdf(x - vec2(0, 1e-4))) / 2e-4
+        return vec2(dx, dy)
+
+    @ti.kernel 
+    def clear_collision(self):
+        self.num_collide[None] = 0
+        self.collide.fill(0)
+                    
+    @ti.kernel 
+    def collision_detection(self):
+        for i in range(self.num_sphere[None]):
+            for j in range(i + 1, self.num_sphere[None]):
+                itx = self.spheres[i].collision_detection(self.spheres[j])
+                if self.spheres[i].collide_sdf(self.spheres[j], itx) < 1e-4:
+                    self.collide[self.num_collide[None]] = itx
+                    ti.atomic_add(self.num_collide[None], 1)
+                    # add contact here
 
     @ti.kernel
     def update(self):
@@ -38,6 +64,7 @@ class Scene:
         
     @ti.kernel
     def update_vertices(self):
+        """Update vertices of all spheres"""
         for i in range(self.num_sphere[None]):
             self.vertices[i * (res + 1)] = self.spheres[i].o
             for j in range(res):

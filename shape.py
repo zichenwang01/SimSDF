@@ -22,9 +22,15 @@ class Object:
         """Get the signed distance from a point to the object"""
         pass
     
+    @ti.func 
+    def collision_detection(self, sphere):
+        """Get the intersection point between two objects.
+           If there is no intersection, return (-1,-1)"""
+        pass
+    
     @ti.func
-    def particles(self):
-        """ Render the object as a set of particles in local coordinates.
+    def triangles(self, num_v, num_tri, triangles):
+        """ Render the object as a set of triangles in local coordinates.
             For rigid bodies, this function should only be called once"""
         pass
     
@@ -59,19 +65,41 @@ class Sphere:
     def sdf(self, x):
         return (x - self.o).norm() - self.r
     
+    # @ti.func 
+    # def collision_detection(self, sphere):
+    #     """Ground truth. Only used for debugging."""
+    #     itx = vec2(-1,-1)
+    #     if (self.o - sphere.o).norm() < self.r + sphere.r:
+    #         itx = 0.5 * (self.o + sphere.o)
+    #     return itx
+    
+    @ti.func 
+    def sdf_grad(self, x):
+        return (x - self.o).normalized()
+    
+    @ti.func 
+    def collide_sdf(self, sphere, x):
+        return tm.max(self.sdf(x), sphere.sdf(x))
+    
+    @ti.func 
+    def collide_grad(self, sphere, x):
+        left = self.collide_sdf(sphere, x - vec2(1e-4,0))
+        right = self.collide_sdf(sphere, x + vec2(1e-4,0))
+        up = self.collide_sdf(sphere, x - vec2(0,1e-4))
+        down = self.collide_sdf(sphere, x + vec2(0,1e-4))
+        
+        dx = (right - left) / 2e-4
+        dy = (down - up) / 2e-4
+        
+        return vec2(dx, dy).normalized()
+    
     @ti.func
-    def particles(self, idx, num_pt, particles):
-        for i,j in ti.ndrange(20, 20):
-            
-            local = vec2(float((i-10.0)/10.0), (j-10.0)/10.0) * self.size
-            # print(local)
-            world = to_world(self.o, self.R, local)
-            
-            if self.sdf(world) < 0:
-                # print(local)
-                particles[num_pt[None]].p = local
-                particles[num_pt[None]].idx = idx[None]
-                ti.atomic_add(num_pt[None], 1)
+    def collision_detection(self, sphere):
+        itx = 0.5 * (self.o + sphere.o)
+        for i in range(5):
+            grad = self.collide_grad(sphere, itx)
+            itx -= self.collide_sdf(sphere, itx) * grad
+        return itx
     
     @ti.func 
     def triangles(self, num_v, num_tri, triangles):

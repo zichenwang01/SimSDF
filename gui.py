@@ -17,4 +17,12 @@ class GUI:
         return self.window.running
     
     def draw(self, scene):
-        self.canvas.triangles(vertices=scene.vertices, indices=scene.triangles, color=(1,1,1))
+        self.canvas.triangles(vertices=scene.vertices, 
+                              indices=scene.triangles, 
+                              color=(0.5, 0.5, 0.5))
+        if scene.num_collide[None] > 0:
+            self.canvas.circles(centers=scene.collide,
+                                radius=0.005,
+                                color=(1, 0, 0))
+        
+        

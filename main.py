@@ -3,7 +3,8 @@ from gui import GUI
 from scene import Scene
 
 scene = Scene(dt=1e-1)
-scene.add_sphere(o=vec2(0.5,0.5), r=0.02, m=1)
+scene.add_sphere(o=vec2(0.2,0.5), r=0.05, m=1, v=vec2(0.1,0))
+scene.add_sphere(o=vec2(0.8,0.5), r=0.05, m=1, v=vec2(-0.1,0))
 
 # # check spheres
 # print(scene.num_sphere[None])
@@ -26,6 +27,8 @@ gui = GUI()
 gui.start()
 while gui.is_running():
     for i in range(num_step):
+        scene.clear_collision()
+        scene.collision_detection()
         scene.update()
     
     scene.update_vertices()
