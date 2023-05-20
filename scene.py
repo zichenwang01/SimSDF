@@ -14,6 +14,7 @@ class Scene:
         self.num_tri = ti.field(dtype=ti.i32, shape=())
         self.vertices = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
         self.triangles = ti.field(dtype=ti.i32, shape=(3*10000))
+        self.colors = ti.Vector.field(3, shape=(10000), dtype=ti.f32)
 
         # colliding points
         self.num_collide = ti.field(dtype=ti.i32, shape=())
@@ -67,6 +68,7 @@ class Scene:
         """Update vertices of all spheres"""
         for i in range(self.num_sphere[None]):
             self.vertices[i * (res + 1)] = self.spheres[i].o
+            self.colors[i * (res + 1)] = self.spheres[i].color
             for j in range(res):
                 self.vertices[i * (res + 1) + j + 1] = to_world(
                     self.spheres[i].o,

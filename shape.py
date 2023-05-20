@@ -49,6 +49,7 @@ class Sphere:
     R : vec2  # rotation (cosine/sine pair)
     I : float # moment of inertia
     size: float # collision detection radius
+    color : vec3
     
     @ti.func
     def init(self, o, r, m=1, v=vec2(0,0), ω=0):
@@ -60,6 +61,7 @@ class Sphere:
         self.R = vec2(1,0)
         self.I = 0.25 * m * r * r
         self.size = r
+        self.color = vec3(1,1,1)
     
     @ti.func
     def sdf(self, x):
