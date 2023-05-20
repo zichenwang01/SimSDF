@@ -28,6 +28,7 @@ y = y.flatten()
 xy = np.stack([x, y], axis=1)
 sdf = sdf_max(xy)
 
+fig, ax = plt.subplots()
 plt.title('Max SDF')
 plt.xlabel('x')
 plt.ylabel('y')
@@ -35,8 +36,8 @@ plt.xlim(0, 1)
 plt.ylim(0, 1)
 
 # plot the zero level curve
-contours = plt.contour(x_range, y_range, sdf.reshape(100, 100), levels=[0])
-plt.clabel(contours, inline=True, fontsize=8)
+contours = plt.contour(x_range, y_range, sdf.reshape(100, 100), levels=[0], colors = 'white')
+plt.clabel(contours, inline=True, fontsize=10,)
 
 # plot the level curves
 plt.contourf(x_range, y_range, sdf.reshape(100, 100))
@@ -57,13 +58,24 @@ plt.colorbar()
 #     print(p)
 #     plt.scatter(p[0, 0], p[0, 1], c='r', s=2)
 
+# plot the circles
+circle1 = plt.Circle((0.35,0.5), 0.2, color='black', fill=False, linestyle='--')
+circle2 = plt.Circle((0.65,0.5), 0.2, color='black', fill=False, linestyle='--')
+ax.add_artist(circle1)
+ax.add_artist(circle2)
+
+# plot the gradient descent points
 p = np.array([[0.499, 0.1,]])
-plt.scatter(p[0, 0], p[0, 1], c='r', s=2)
+plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
 grad = gradient(p)
+plt.arrow(p[0, 0], p[0, 1], -grad[0, 0] * 0.22, -grad[0, 1] * 0.22, length_includes_head=True, head_length=0.02, head_width=0.01, color='r')
+
 p -= sdf_max(p) * grad
-plt.scatter(p[0, 0], p[0, 1], c='r', s=2)
+plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
 grad = gradient(p)
+plt.arrow(p[0, 0], p[0, 1], -grad[0, 0] * 0.09, -grad[0, 1] * 0.09, length_includes_head=True, head_length=0.02, head_width=0.01, color='r')
+
 p -= sdf_max(p) * grad
-plt.scatter(p[0, 0], p[0, 1], c='r', s=2)
+plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
 
 plt.show()

@@ -12,7 +12,8 @@ class Object:
     ω : float # angular velocity
     m : float # mass
     I : float # moment of inertia
-    size: float # collision detection radius
+    size : float # collision detection radius
+    color : vec3 
     
     def __init__(self, o, R=vec2(1,0), v=vec2(0,0), ω=0, m=1, I=None, size=None):
         pass
