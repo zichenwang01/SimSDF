@@ -10,7 +10,6 @@ class Object:
     R : vec2  # rotation (cosine/sine pair)
     v : vec2  # linear velocity
     ω : float # angular velocity
-    # l : vec2  # dimensions of box
     m : float # mass
     I : float # moment of inertia
     size: float # collision detection radius
@@ -73,6 +72,16 @@ class Sphere:
                 particles[num_pt[None]].p = local
                 particles[num_pt[None]].idx = idx[None]
                 ti.atomic_add(num_pt[None], 1)
+    
+    @ti.func 
+    def triangles(self, num_v, num_tri, triangles):
+        for i in range(res):
+            triangles[3 * num_tri[None]] = num_v[None]
+            triangles[3 * num_tri[None] + 1] = num_v[None] + i + 1
+            triangles[3 * num_tri[None] + 2] = num_v[None] + (i + 1) % res + 1
+            ti.atomic_add(num_tri[None], 1)
+        ti.atomic_add(num_v[None], res + 1)
+        
     
     @ti.func
     def update(self):

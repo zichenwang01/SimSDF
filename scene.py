@@ -1,10 +1,6 @@
 from util import * 
 from shape import Sphere 
 
-@ti.dataclass 
-class Particle:
-    p : vec2 
-    idx : int
 
 @ti.data_oriented
 class Scene:
@@ -14,21 +10,21 @@ class Scene:
         self.num_sphere = ti.field(dtype=ti.i32, shape=())
         self.spheres = Sphere.field(shape=(100,))
         
-        # particles in local coordinates
-        self.num_pt = ti.field(dtype=ti.i32, shape=())
-        self.particles = Particle.field(shape=(10000,))
-        self.positions = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
-        
-        # self.particles = ti.Vector.field(2, shape=(10000), dtype=ti.f32) 
-        # self.indecies = ti.field(dtype=ti.i32, shape=(10000))
+        # triangles in local coordinates
+        self.num_v = ti.field(dtype=ti.i32, shape=())
+        self.num_tri = ti.field(dtype=ti.i32, shape=())
+        self.vertices = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
+        self.triangles = ti.field(dtype=ti.i32, shape=(3*10000))
+
     
     @ti.kernel
     def add_sphere(self, o:vec2, r:float, m:float):
         """Initialize a sphere"""
-        self.spheres[self.num_sphere[None]].init(o=o, r=r, m=m)
-        print(self.spheres[self.num_sphere[None]].r)
-        self.spheres[self.num_sphere[None]].particles(self.num_sphere, 
-                                                      self.num_pt, self.particles)
+        num_sphere = self.num_sphere[None]
+        self.spheres[num_sphere].init(o=o, r=r, m=m)
+        self.spheres[num_sphere].triangles(self.num_v, 
+                                           self.num_tri, 
+                                           self.triangles)
         self.num_sphere[None] += 1
 
     @ti.func
@@ -40,9 +36,15 @@ class Scene:
         for i in range(self.num_sphere[None]):
             self.spheres[i].update()
         
-        # print(self.num_pt[None])
-        for i in range(self.num_pt[None]):
-            idx = self.particles[i].idx
-            self.positions[i] = to_world(self.spheres[idx].o, self.spheres[idx].R, self.particles[i].p)
+    @ti.kernel
+    def update_vertices(self):
+        for i in range(self.num_sphere[None]):
+            self.vertices[i * (res + 1)] = self.spheres[i].o
+            for j in range(res):
+                self.vertices[i * (res + 1) + j + 1] = to_world(
+                    self.spheres[i].o,
+                    self.spheres[i].R,
+                    tm.rotation2d(j * 2 * tm.pi / res) @ vec2(self.spheres[i].r,0)
+                )
         
         

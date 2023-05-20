@@ -13,6 +13,9 @@ num_step = 100
 # time step for each substep
 dt = 1e-4
 
+# number of vertices for each sphere
+res = 32
+
 @ti.func
 def rot(q:vec2, X:vec2)->vec2:
     """Rotate point X by rotation q"""

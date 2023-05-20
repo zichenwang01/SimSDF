@@ -17,6 +17,4 @@ class GUI:
         return self.window.running
     
     def draw(self, scene):
-        # print(scene.positions)
-        self.canvas.circles(scene.positions, radius=1.0/self.width, color=(0.5,0.5,0.5))
-        # self.canvas.circles(self.grid, radius=1.0/self.width, color=self.color)
+        self.canvas.triangles(vertices=scene.vertices, indices=scene.triangles, color=(1,1,1))
