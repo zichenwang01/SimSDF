@@ -8,6 +8,7 @@ class Scene:
         # spheres
         self.num_sphere = ti.field(dtype=ti.i32, shape=())
         self.spheres = Sphere.field(shape=(100,))
+        self.objs = self.spheres
         
         # triangles in local coordinates
         self.num_v = ti.field(dtype=ti.i32, shape=())
@@ -15,10 +16,6 @@ class Scene:
         self.vertices = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
         self.triangles = ti.field(dtype=ti.i32, shape=(3*10000))
         self.colors = ti.Vector.field(3, shape=(10000), dtype=ti.f32)
-
-        # colliding points
-        self.num_collide = ti.field(dtype=ti.i32, shape=())
-        self.collide = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
     
     @ti.kernel
     def add_sphere(self, o:vec2, r:float, m:float, v:vec2):
@@ -42,21 +39,6 @@ class Scene:
         dx = (self.sdf(x + vec2(1e-4, 0)) - self.sdf(x - vec2(1e-4, 0))) / 2e-4
         dy = (self.sdf(x + vec2(0, 1e-4)) - self.sdf(x - vec2(0, 1e-4))) / 2e-4
         return vec2(dx, dy)
-
-    @ti.kernel 
-    def clear_collision(self):
-        self.num_collide[None] = 0
-        self.collide.fill(0)
-                    
-    # @ti.kernel 
-    # def collision_detection(self):
-    #     for i in range(self.num_sphere[None]):
-    #         for j in range(i + 1, self.num_sphere[None]):
-    #             itx = self.spheres[i].collision_detection(self.spheres[j])
-    #             if itx[0] != -1 and itx[1] != -1:
-    #                 self.collide[self.num_collide[None]] = itx
-    #                 ti.atomic_add(self.num_collide[None], 1)
-                    
 
     @ti.kernel
     def update(self):

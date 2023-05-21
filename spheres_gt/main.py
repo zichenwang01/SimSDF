@@ -31,12 +31,12 @@ gui = GUI()
 gui.start()
 while gui.is_running():
     for i in range(num_step):
-        scene.clear_collision()
+        solver.clearContact()
         solver.collision_detection()
         solver.PGS()
         solver.apply_impulses()
         scene.update()
     
     scene.update_vertices()
-    gui.draw(scene)
+    gui.draw(scene, solver)
     gui.window.show()
