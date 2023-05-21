@@ -1,11 +1,5 @@
 from util import *
 from shape import *
-import taichi as ti
-import taichi.math as tm
-
-vec2 = tm.vec2
-vec3 = tm.vec3
-mat3 = tm.mat3
 
 MULTIPLIER = 10
 
@@ -30,12 +24,14 @@ class Collision:
 
 
 @ti.data_oriented
-class CollisionResponse:
+class CollisionSolver:
+    
     def __init__(self, scene_state, Cr, β, μ):
         self.scene = scene_state
         self.Cr = Cr
         self.β = β
         self.μ = μ
+        self.scene.objs = self.scene.spheres
         self.init_contact()
 
     # TODO: Initialize the other fields you need for implementing collision response
@@ -43,7 +39,7 @@ class CollisionResponse:
         self.nc = ti.field(shape=(), dtype=ti.i32)
         # Initialize other variables you need below:
         # you can initialize them in the form of self.xx = ti.field(xxx)
-        self.N = self.scene.N
+        self.N = self.scene.num_sphere[None]
         self.collisions = Collision.field(shape=(self.N*self.N+MULTIPLIER*self.N,))
         self.nc[None] = 0
         self.gamma_x = ti.Vector.field(2, shape=(self.N,), dtype=ti.f64)
@@ -58,6 +54,20 @@ class CollisionResponse:
         self.sum_w.fill(0)
         self.gamma_x.fill(vec2(0))
         # you can clear other attributes below if you need to do so
+                    
+    @ti.kernel 
+    def collision_detection(self):
+        for i in range(self.scene.num_sphere[None]):
+            for j in range(i + 1, self.scene.num_sphere[None]):
+                itx = self.scene.spheres[i].collision_detection(self.scene.spheres[j])
+                if itx[0] != -1 and itx[1] != -1:
+                    self.scene.collide[self.scene.num_collide[None]] = itx
+                    ti.atomic_add(self.scene.num_collide[None], 1)
+                    
+                    r1 = itx - self.scene.spheres[i].o
+                    r2 = itx - self.scene.spheres[j].o
+                    n = (self.scene.spheres[j].o -self.scene.spheres[i].o).normalized()
+                    self.addContact(itx, r1, r2, n, i, j, 0, 1)
 
     # TODO: Implement this function that is going be triggered whenever a collision is being detected
     @ti.func
@@ -192,8 +202,8 @@ class CollisionResponse:
             C = self.collisions[k]
             i, j, n = C.i1, C.i2, C.n1
             if i >= 0:
-                ti.atomic_add(self.scene.objs[i].v, -C.gamma * n / self.scene.objs[i].m)
-                self.scene.objs[i].ω -= C.gamma * C.r1.cross(n) / self.scene.objs[i].I
+                ti.atomic_add(self.scene.spheres[i].v, -C.gamma * n / self.scene.spheres[i].m)
+                self.scene.spheres[i].ω -= C.gamma * C.r1.cross(n) / self.scene.spheres[i].I
             if j >= 0:
-                ti.atomic_add(self.scene.objs[j].v, C.gamma * n / self.scene.objs[j].m)
-                self.scene.objs[j].ω += C.gamma * C.r2.cross(n) / self.scene.objs[j].I
+                ti.atomic_add(self.scene.spheres[j].v, C.gamma * n / self.scene.spheres[j].m)
+                self.scene.spheres[j].ω += C.gamma * C.r2.cross(n) / self.scene.spheres[j].I

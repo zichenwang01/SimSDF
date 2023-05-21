@@ -11,10 +11,10 @@ vec3 = tm.vec3
 num_step = 100
 
 # time step for each substep
-dt = 1e-4
+dt = 1e-3
 
 # number of vertices for each sphere
-res = 32
+res = 3
 
 @ti.func
 def rot(q:vec2, X:vec2)->vec2:
@@ -35,3 +35,9 @@ def to_local(o:vec2, q:vec2, X:vec2)->vec2:
 def to_world(o:vec2, q:vec2, X:vec2)->vec2:
     """Get the world coordinates of a point in local coordinates"""
     return rot(q, X) + o
+
+@ti.func
+def normal(v1:vec2, v2:vec2)->vec2:
+    """Get the normal vector of a line"""
+    e = (v2 - v1).normalized()
+    return vec2(e.y, -e.x)

@@ -48,14 +48,15 @@ class Scene:
         self.num_collide[None] = 0
         self.collide.fill(0)
                     
-    @ti.kernel 
-    def collision_detection(self):
-        for i in range(self.num_sphere[None]):
-            for j in range(i + 1, self.num_sphere[None]):
-                itx = self.spheres[i].collision_detection(self.spheres[j])
-                if itx[0] != -1 and itx[1] != -1:
-                    self.collide[self.num_collide[None]] = itx
-                    ti.atomic_add(self.num_collide[None], 1)
+    # @ti.kernel 
+    # def collision_detection(self):
+    #     for i in range(self.num_sphere[None]):
+    #         for j in range(i + 1, self.num_sphere[None]):
+    #             itx = self.spheres[i].collision_detection(self.spheres[j])
+    #             if itx[0] != -1 and itx[1] != -1:
+    #                 self.collide[self.num_collide[None]] = itx
+    #                 ti.atomic_add(self.num_collide[None], 1)
+                    
 
     @ti.kernel
     def update(self):

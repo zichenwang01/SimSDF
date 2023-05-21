@@ -6,6 +6,7 @@ ti.init(arch=ti.cpu)
 
 vec2 = tm.vec2
 vec3 = tm.vec3
+mat3 = tm.mat3
 
 # substep
 num_step = 100
@@ -16,6 +17,8 @@ dt = 1e-4
 # number of vertices for each sphere
 res = 32
 
+# simulation parameters
+Cr, β, μ = 0.5, 0.5, 0.1
 
 @ti.func
 def rot(q: vec2, X: vec2) -> vec2:

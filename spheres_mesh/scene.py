@@ -53,10 +53,10 @@ class Scene:
         for i in range(self.num_sphere[None]):
             for j in range(i + 1, self.num_sphere[None]):
                 itx = self.spheres[i].collision_detection(self.spheres[j])
-                if self.spheres[i].collide_sdf(self.spheres[j], itx) < 1e-4:
+                # print(itx)
+                if itx[0] != -1 and itx[1] != -1:
                     self.collide[self.num_collide[None]] = itx
                     ti.atomic_add(self.num_collide[None], 1)
-                    # add contact here
 
     @ti.kernel
     def update(self):

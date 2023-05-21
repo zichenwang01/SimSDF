@@ -70,7 +70,7 @@ class Sphere:
     
     @ti.func 
     def collision_detection(self, sphere):
-        """Ground truth."""
+        """Ground truth by particle simulation"""
         itx = vec2(-1,-1)
         if (self.o - sphere.o).norm() < self.r + sphere.r:
             itx = 0.5 * (self.o + sphere.o)

@@ -68,41 +68,83 @@ class Sphere:
     def sdf(self, x):
         return (x - self.o).norm() - self.r
     
-    # @ti.func 
-    # def collision_detection(self, sphere):
-    #     """Ground truth. Only used for debugging."""
-    #     itx = vec2(-1,-1)
-    #     if (self.o - sphere.o).norm() < self.r + sphere.r:
-    #         itx = 0.5 * (self.o + sphere.o)
-    #     return itx
-    
     @ti.func 
-    def sdf_grad(self, x):
-        return (x - self.o).normalized()
-    
-    @ti.func 
-    def collide_sdf(self, sphere, x):
-        return tm.max(self.sdf(x), sphere.sdf(x))
-    
-    @ti.func 
-    def collide_grad(self, sphere, x):
-        left = self.collide_sdf(sphere, x - vec2(1e-4,0))
-        right = self.collide_sdf(sphere, x + vec2(1e-4,0))
-        up = self.collide_sdf(sphere, x - vec2(0,1e-4))
-        down = self.collide_sdf(sphere, x + vec2(0,1e-4))
-        
-        dx = (right - left) / 2e-4
-        dy = (down - up) / 2e-4
-        
-        return vec2(dx, dy).normalized()
-    
-    @ti.func
     def collision_detection(self, sphere):
-        itx = 0.5 * (self.o + sphere.o)
-        for i in range(5):
-            grad = self.collide_grad(sphere, itx)
-            itx -= self.collide_sdf(sphere, itx) * grad
-        return itx
+        """Baseline by mesh representation"""
+        # v1 = ti.Vector.field(3, shape=(res), dtype=ti.f32)
+        # for i in range(res):
+        #     v1[i] = self.to_world(
+        #         self.o, self.R,
+        #         tm.rotation2d(i * 2 * tm.pi / res) @ vec2(self.r,0)
+        #     )
+    
+        # v2 = ti.Vector.field(3, shape=(res), dtype=ti.f32)
+        # for i in range(res):
+        #     v2[i] = sphere.to_world(
+        #         sphere.o, sphere.R,
+        #         tm.rotation2d(i * 2 * tm.pi / res) @ vec2(sphere.r,0)
+        #     )
+        
+        max_itx = vec2(-1, -1)
+        max_sep = -tm.inf
+        for i in range(res):
+            itx = vec2(-1, -1)
+            sep = tm.inf 
+            v1 = to_world(
+                self.o, self.R,
+                tm.rotation2d(i * 2 * tm.pi / res) @ vec2(self.r,0)
+            )
+            v2 = to_world(
+                self.o, self.R,
+                tm.rotation2d((i+1) * 2 * tm.pi / res) @ vec2(self.r,0)
+            )
+            n = normal(v1, v2)
+            # print(v1, v2, n)
+            for j in range(res):
+                v3 = to_world(
+                    sphere.o, sphere.R,
+                    tm.rotation2d(j * 2 * tm.pi / res) @ vec2(sphere.r,0)
+                )
+                d = n.dot(v3 - v1)
+                if d < sep:
+                    sep = d
+                    itx = v3
+            if sep > max_sep:
+                max_sep = sep
+                max_itx = itx
+            # print(sep)
+            
+        for i in range(res):
+            itx = vec2(-1, -1)
+            sep = tm.inf 
+            v1 = to_world(
+                sphere.o, sphere.R,
+                tm.rotation2d(i * 2 * tm.pi / res) @ vec2(sphere.r,0)
+            )
+            v2 = to_world(
+                sphere.o, sphere.R,
+                tm.rotation2d((i+1) * 2 * tm.pi / res) @ vec2(sphere.r,0)
+            )
+            n = normal(v1, v2)
+            for j in range(res):
+                v3 = to_world(
+                    self.o, self.R,
+                    tm.rotation2d(j * 2 * tm.pi / res) @ vec2(self.r,0)
+                )
+                d = n.dot(v3 - v1)
+                if d < sep:
+                    sep = d
+                    itx = v3
+            if sep > max_sep:
+                max_sep = sep
+                max_itx = itx
+        
+        if max_sep > 0:
+            max_itx = vec2(-1, -1)
+            
+        # print(max_sep)
+        return max_itx
+            
     
     @ti.func 
     def triangles(self, num_v, num_tri, triangles):
