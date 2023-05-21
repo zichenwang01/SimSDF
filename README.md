@@ -2,7 +2,7 @@
 
 ![Example Figure](./figures/max_sdf.png)
 
-This repository contains an implementation for the CS5643 final project, coded by Zichen Wang, Barry Lyu, and Xilai Dai.
+This repository contains an implementation for the CS5643 final project, coded by Zichen Wang, Xilai Dai, and Barry Lyu.
 
 ## Environment
 The environment setup for this repository is fairly simple. Run  
