@@ -83,8 +83,9 @@ class CollisionSolver:
         # compute the relative normal velocity
         v_n = n1.dot(v)
         
-        self.collisions[self.num_collide[None]] = Collision(p1, r1, r2, n1, 
-                                                   i1, i2, sep, num_collide, 0., v_n)
+        self.collisions[self.num_collide[None]] = Collision(
+            p1, r1, r2, n1, i1, i2, sep, num_collide, 0., v_n
+        )
         ti.atomic_add(self.num_collide[None], 1)
 
     @ti.func
