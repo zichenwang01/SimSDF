@@ -1,5 +1,6 @@
 from util import * 
 from response import *
+from shape import Shape, check_collision
 
 Cr = 0.5
 β = 0.5
@@ -28,11 +29,8 @@ class Scene:
 
       for i in range(self.num_shapes[None]):
         for j in range(i + 1, self.num_shapes[None]):
-          itx = self.shapes[i].collision_detection(self.shapes[j])
-          if itx[0] != -1 and itx[1] != -1:
-            # collision_data should be instance of Collision
-            is_collision, collision_data = self.shapes[i].collide_sdf(self.shapes[j], itx)
-            if is_collision:
+            is_collision, collision_data = check_collision(self.shapes[i], self.shapes[j])
+            if is_collision: 
               self.response.addContact(collision_data)
       
       self.response.PGS()
