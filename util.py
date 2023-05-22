@@ -36,6 +36,12 @@ def to_world(o:vec2, q:vec2, X:vec2)->vec2:
     """Get the world coordinates of a point in local coordinates"""
     return rot(q, X) + o
 
+
+@ti.func
+def crossZ(p: float, q: vec2)->vec2:
+    """cross product of z-axis vector with xy-plane vector"""
+    return vec2(-p * q.y, p * q.x)
+
 @ti.func
 def normal(v1:vec2, v2:vec2)->vec2:
     """Get the normal vector of a line"""
