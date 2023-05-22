@@ -1,6 +1,7 @@
 from util import * 
 from gui import GUI
 from scene import Scene
+from collision import CollisionSolver
 
 scene = Scene(dt=1e-1)
 scene.add_sphere(o=vec2(0.2,0.5), r=0.05, m=1, v=vec2(0.1,0))
@@ -24,11 +25,15 @@ scene.add_sphere(o=vec2(0.8,0.5), r=0.05, m=1, v=vec2(-0.1,0))
 
 gui = GUI()
 
+collision = CollisionSolver(scene,0.5,0,0)
+
 gui.start()
 while gui.is_running():
     for i in range(num_step):
-        scene.clear_collision()
-        scene.collision_detection()
+        collision.clearContact()
+        collision.collision_detection()
+        collision.PGS()
+        collision.apply_impulses()
         scene.update()
     
     scene.update_vertices()
