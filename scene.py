@@ -37,5 +37,12 @@ class Scene:
       
       self.response.PGS()
       self.response.apply_impulses()
+
+    @ti.kernel
+    def update(self):
+      for i in range(self.num_shapes[None]):
+        self.shapes[i].update()
+
+    
               
             
