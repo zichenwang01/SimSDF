@@ -103,7 +103,9 @@ class Sphere:
         for i in range(5):
             grad = self.collide_grad(sphere, itx)
             itx -= self.collide_sdf(sphere, itx) * grad
-        return itx
+        if self.collide_sdf(sphere, itx) > 1e-4:
+            itx =  vec2(-1,-1)
+        return itx, self.sdf_grad(itx)
     
     @ti.func 
     def triangles(self, num_v, num_tri, triangles):
@@ -113,7 +115,6 @@ class Sphere:
             triangles[3 * num_tri[None] + 2] = num_v[None] + (i + 1) % res + 1
             ti.atomic_add(num_tri[None], 1)
         ti.atomic_add(num_v[None], res + 1)
-        
     
     @ti.func
     def update(self):

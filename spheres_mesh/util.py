@@ -14,7 +14,7 @@ num_step = 100
 dt = 1e-3
 
 # number of vertices for each sphere
-res = 3
+res = 128
 
 @ti.func
 def rot(q:vec2, X:vec2)->vec2:
@@ -41,3 +41,8 @@ def normal(v1:vec2, v2:vec2)->vec2:
     """Get the normal vector of a line"""
     e = (v2 - v1).normalized()
     return vec2(e.y, -e.x)
+
+@ti.func
+def crossZ(p: float, q: vec2) -> vec2:
+    """cross product of z-axis vector with xy-plane vector"""
+    return vec2(-p * q.y, p * q.x)

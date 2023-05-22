@@ -87,6 +87,7 @@ class Sphere:
         
         max_itx = vec2(-1, -1)
         max_sep = -tm.inf
+        max_n = vec2(0,0)
         for i in range(res):
             itx = vec2(-1, -1)
             sep = tm.inf 
@@ -112,6 +113,7 @@ class Sphere:
             if sep > max_sep:
                 max_sep = sep
                 max_itx = itx
+                max_n = n
             # print(sep)
             
         for i in range(res):
@@ -138,12 +140,13 @@ class Sphere:
             if sep > max_sep:
                 max_sep = sep
                 max_itx = itx
+                max_n = n
         
         if max_sep > 0:
             max_itx = vec2(-1, -1)
             
         # print(max_sep)
-        return max_itx
+        return max_itx, max_n
             
     
     @ti.func 
