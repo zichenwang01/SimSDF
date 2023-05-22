@@ -4,7 +4,6 @@ from shape import Shape, check_collision
 
 Cr = 0.5
 β = 0.5
-μ = 0.5
 μ = 0
 
 @ti.data_oriented
