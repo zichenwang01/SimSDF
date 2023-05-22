@@ -17,18 +17,18 @@ class Scene:
         self.colors = ti.Vector.field(3, shape=(10000), dtype=ti.f32)
 
         # colliding points
-        self.num_collide = ti.field(dtype=ti.i32, shape=())
-        self.collide = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
+        # self.num_collide = ti.field(dtype=ti.i32, shape=())
+        # self.collide = ti.Vector.field(2, shape=(10000), dtype=ti.f32)
     
-    @ti.func
-    def clear_collision(self):
-        self.num_collide[None] = 0
-        self.collide.fill(0)
+    # @ti.func
+    # def clear_collision(self):
+    #     self.num_collide[None] = 0
+    #     self.collide.fill(0)
 
-    @ti.func
-    def add_collision(self, p:vec2):
-        self.collide[self.num_collide[None]] = p
-        ti.atomic_add(self.num_collide[None],1)
+    # @ti.func
+    # def add_collision(self, p:vec2):
+    #     self.collide[self.num_collide[None]] = p
+    #     ti.atomic_add(self.num_collide[None],1)
 
     @ti.kernel
     def add_sphere(self, o:vec2, r:float, m:float, v:vec2):

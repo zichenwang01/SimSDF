@@ -12,7 +12,7 @@ mat3 = tm.mat3
 num_step = 100
 
 # time step for each substep
-dt = 1e-4
+dt = 1e-3
 
 # number of vertices for each sphere
 res = 32

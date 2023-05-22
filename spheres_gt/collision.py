@@ -49,9 +49,11 @@ class CollisionSolver:
             for j in range(i + 1, self.scene.num_sphere[None]):
                 itx = self.scene.objs[i].collision_detection(self.scene.objs[j])
                 if itx[0] != -1 and itx[1] != -1:
+                    print("itx: ", itx)
                     r1 = itx - self.scene.objs[i].o
                     r2 = itx - self.scene.objs[j].o
                     n = (self.scene.objs[j].o -self.scene.objs[i].o).normalized()
+                    print("n: ", n)
                     self.addContact(itx, r1, r2, n, i, j, 0, 1)
 
     @ti.func

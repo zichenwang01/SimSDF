@@ -14,7 +14,7 @@ num_step = 100
 dt = 1e-3
 
 # number of vertices for each sphere
-res = 128
+res = 256
 
 @ti.func
 def rot(q:vec2, X:vec2)->vec2:

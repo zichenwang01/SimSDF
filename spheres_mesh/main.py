@@ -38,5 +38,5 @@ while gui.is_running():
         scene.update()
     
     scene.update_vertices()
-    gui.draw(scene)
+    gui.draw(scene, collision)
     gui.window.show()

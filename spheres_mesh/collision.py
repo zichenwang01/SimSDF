@@ -42,15 +42,16 @@ class CollisionSolver:
 
     @ti.kernel 
     def collision_detection(self):
-        self.scene.clear_collision()
+        # self.scene.clear_collision()
         for i in range(self.scene.num_sphere[None]):
             for j in range(i + 1, self.scene.num_sphere[None]):
                 itx, n = self.scene.spheres[i].collision_detection(self.scene.spheres[j])
-                # print(itx)
                 if itx[0] != -1 and itx[1] != -1:
+                    print("itx: ", itx)
+                    print("n: ", n)
                     sep = (self.scene.spheres[i].o - self.scene.spheres[j].o).norm() - self.scene.spheres[i].r - self.scene.spheres[j].r
-                    self.addContact(self.scene.spheres[i].o, itx-self.scene.spheres[i].o, itx-self.scene.spheres[j].o, n, i, j, sep , 1)
-                    self.scene.add_collision(itx)
+                    self.addContact(itx, itx-self.scene.spheres[i].o, itx-self.scene.spheres[j].o, n, i, j, sep , 1)
+                    # self.scene.add_collision(itx)
 
 
     @ti.func

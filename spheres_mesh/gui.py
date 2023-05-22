@@ -16,12 +16,19 @@ class GUI:
     def is_running(self):
         return self.window.running
     
-    def draw(self, scene):
+    def draw(self, scene, solver):
+        # self.canvas.triangles(vertices=scene.vertices, 
+        #                       indices=scene.triangles, 
+        #                       per_vertex_color=scene.colors)
+        # if scene.num_collide[None] > 0:
+        #     self.canvas.circles(centers=scene.collide,
+        #                         radius=0.005,
+        #                         color=(1, 0, 0))
         self.canvas.triangles(vertices=scene.vertices, 
                               indices=scene.triangles, 
                               per_vertex_color=scene.colors)
-        if scene.num_collide[None] > 0:
-            self.canvas.circles(centers=scene.collide,
+        if solver.num_collide[None] > 0:
+            self.canvas.circles(centers=solver.collisions.p1,
                                 radius=0.005,
                                 color=(1, 0, 0))
         
