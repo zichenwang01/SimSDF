@@ -2,16 +2,15 @@ from util import *
 from response import *
 from shape import Shape, check_collision
 
-Cr = 0.5
-β = 0.5
-μ = 0
-
 @ti.data_oriented
 class Scene:  
     def __init__(self, dt):
       self.num_shapes = ti.field(dtype=ti.i32, shape=())
       self.shapes = Shape.field(shape=(100,))
       self.response = CollisionResponse(self, Cr, β, μ)
+      self.dt = dt
+      self.collisions = ti.field(2, shape=(10000), dtype=ti.f32)
+      self.num_collide = ti.field(dtype=ti.i32, shape=())
       
       # TODO add Shape class
 
@@ -31,6 +30,9 @@ class Scene:
             is_collision, collision_data = check_collision(self.shapes[i], self.shapes[j])
             if is_collision: 
               self.response.addContact(collision_data)
+              #TODO add the point of collision
+              self.collisions[self.num_collide[None]] = points
+              ti.atomic_add(self.num_collide[None], 1)
       
       self.response.PGS()
       self.response.apply_impulses()
@@ -38,7 +40,7 @@ class Scene:
     @ti.kernel
     def update(self):
       for i in range(self.num_shapes[None]):
-        self.shapes[i].update()
+        self.shapes[i].update(dt)
 
     
               

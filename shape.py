@@ -30,6 +30,9 @@ class Shape:
     
     def collide_sdf(self, object, itx):
         pass
+    
+    def update(self, dt):
+        pass
 
 # returns (is_collision, collision_data)
 def check_collision(object1, object2):
