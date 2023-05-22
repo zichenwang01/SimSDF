@@ -88,7 +88,11 @@ class CollisionResponse:
         # compute the relative normal velocity
         v_n = n1.dot(v)
         self.collisions[ti.atomic_add(self.nc[None], 1)] = Collision(p1, r1, r2, n1, i1, i2, sep, nc, 0., v_n)
-
+    
+    @ti.func
+    def addContact(self, collision:Collision):
+        self.collisions[ti.atomic_add(self.nc[None], 1)] = collision
+        
     @ti.func
     def initSums(self):
         # Compute sum of impulses affecting each object
