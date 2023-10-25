@@ -1,13 +1,13 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 
-def sdf1(x):
+def dist_to_sphere1(x):
     return np.linalg.norm(x - np.array([0.35, 0.5]), axis=1) - 0.2 
 
-def sdf2(x):
+def dist_to_sphere2(x):
     return np.linalg.norm(x - np.array([0.65, 0.5]), axis=1) - 0.2 
 
-def sdf3(x):
+def dist_to_triangle1(x):
     # the three vertices of the triangle
     p1 = np.array([0.49, 0.7])
     p2 = np.array([0.55, 0.4])
@@ -36,7 +36,7 @@ def sdf3(x):
     # the sdf is the minimum of the three distances
     return -np.minimum(np.minimum(np.minimum(d1, d2), np.minimum(d3, d4)), np.minimum(d5, d6))
 
-def sdf4(x):
+def dist_to_triangle2(x):
     # the three vertices of the triangle
     p1 = np.array([0.51, 0.7])
     p2 = np.array([0.7, 0.4])
@@ -66,26 +66,35 @@ def sdf4(x):
     return -np.minimum(np.minimum(np.minimum(d1, d2), np.minimum(d3, d4)), np.minimum(d5, d6))
 
 def sdf_min(x):
-    return np.minimum(sdf1(x), sdf2(x))
+    return np.minimum(dist_to_sphere1(x), dist_to_sphere2(x))
 
 def sdf_max(x):
-    return np.maximum(sdf4(x), sdf3(x))
+    return np.maximum(dist_to_sphere1(x), dist_to_sphere2(x))
 
-def gradient(x):
+def sdf_interpolate(x):
+    d1 = dist_to_sphere1(x)
+    d2 = dist_to_sphere2(x)
+    return (d1**5 + d2**5) / (d1**4 + d2**4)
+
+def gradient(x, sdf=sdf_max):
     eps = 1e-4
-    dx = (sdf_max(x + np.array([eps, 0])) - sdf_max(x - np.array([eps, 0]))) / (2 * eps)
-    dy = (sdf_max(x + np.array([0, eps])) - sdf_max(x - np.array([0, eps]))) / (2 * eps)
+    dx = (sdf(x + np.array([eps, 0])) - sdf(x - np.array([eps, 0]))) / (2*eps)
+    dy = (sdf(x + np.array([0, eps])) - sdf(x - np.array([0, eps]))) / (2*eps)
     return np.stack([dx, dy], axis=1)
 
+# get x and y coordinates
 x_range = np.linspace(0, 1, 100)
 y_range = np.linspace(0, 1, 100)
 x, y = np.meshgrid(x_range, y_range)
 
+# get the sdf values
 x = x.flatten()
 y = y.flatten()
 xy = np.stack([x, y], axis=1)
-sdf = sdf_max(xy)
+# sdf = sdf_max(xy)
+sdf = sdf_interpolate(xy)
 
+# prepare the plot
 fig, ax = plt.subplots()
 plt.title('Gradient Descent to the Contact Region')
 plt.xlabel('x')
@@ -97,18 +106,18 @@ plt.ylim(0, 1)
 contours = plt.contour(x_range, y_range, sdf.reshape(100, 100), levels=[0], colors = 'white')
 plt.clabel(contours, inline=True, fontsize=10,)
 
-# plot the level curves
+# plot the level curves of the sdf
 plt.contourf(x_range, y_range, sdf.reshape(100, 100))
 plt.colorbar()
 
-# plot the sdf
+# plot the smooth sdf
 # plt.scatter(x, y, c=sdf)
 # plt.colorbar()
 # plt.show()
 # exit(0)
 
 # gradient descent to the zero level curve
-# p = np.array([[0.499, 0.,]])
+# p = np.array([[0.499, 0.2,]])
 # grad = gradient(p)
 # step = 0.01
 # while sdf_max(p) > 0:
@@ -118,31 +127,30 @@ plt.colorbar()
 #     plt.scatter(p[0, 0], p[0, 1], c='r', s=2)
 
 # plot the circles
-# circle1 = plt.Circle((0.35,0.5), 0.2, color='black', fill=False, linestyle='--')
-# circle2 = plt.Circle((0.65,0.5), 0.2, color='black', fill=False, linestyle='--')
-# ax.add_artist(circle1)
-# ax.add_artist(circle2)
+circle1 = plt.Circle((0.35,0.5), 0.2, color='black', fill=False, linestyle='--')
+circle2 = plt.Circle((0.65,0.5), 0.2, color='black', fill=False, linestyle='--')
+ax.add_artist(circle1)
+ax.add_artist(circle2)
 
 # plot the triangles
-triangle1 = plt.Polygon(np.array([[0.51, 0.7], [0.7, 0.4], [0.49, 0.4]]), color='black', fill=False, linestyle='--')
-triangle2 = plt.Polygon(np.array([[0.49, 0.7], [0.51, 0.4], [0.3, 0.4]]), color='black', fill=False, linestyle='--')
-ax.add_artist(triangle1)
-ax.add_artist(triangle2)
-plt.show()
-exit(0)
+# triangle1 = plt.Polygon(np.array([[0.51, 0.7], [0.7, 0.4], [0.49, 0.4]]), color='black', fill=False, linestyle='--')
+# triangle2 = plt.Polygon(np.array([[0.49, 0.7], [0.51, 0.4], [0.3, 0.4]]), color='black', fill=False, linestyle='--')
+# ax.add_artist(triangle1)
+# ax.add_artist(triangle2)
+# plt.show()
 
 # plot the gradient descent points
-p = np.array([[0.499, 0.1,]])
-plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
-grad = gradient(p)
-plt.arrow(p[0, 0], p[0, 1], -grad[0, 0] * 0.22, -grad[0, 1] * 0.22, length_includes_head=True, head_length=0.02, head_width=0.01, color='r')
+# p = np.array([[0.499, 0.1,]])
+# plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
+# grad = gradient(p)
+# plt.arrow(p[0, 0], p[0, 1], -grad[0, 0] * 0.22, -grad[0, 1] * 0.22, length_includes_head=True, head_length=0.02, head_width=0.01, color='r')
 
-p -= sdf_max(p) * grad
-plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
-grad = gradient(p)
-plt.arrow(p[0, 0], p[0, 1], -grad[0, 0] * 0.09, -grad[0, 1] * 0.09, length_includes_head=True, head_length=0.02, head_width=0.01, color='r')
+# p -= sdf_max(p) * grad
+# plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
+# grad = gradient(p)
+# plt.arrow(p[0, 0], p[0, 1], -grad[0, 0] * 0.09, -grad[0, 1] * 0.09, length_includes_head=True, head_length=0.02, head_width=0.01, color='r')
 
-p -= sdf_max(p) * grad
-plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
+# p -= sdf_max(p) * grad
+# plt.scatter(p[0, 0], p[0, 1], c='r', s=5)
 
 plt.show()
